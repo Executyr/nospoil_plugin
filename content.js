@@ -8,7 +8,7 @@ function isSpoiler(titre) {
   const scoreRegex = /\b\d{1,3}\s*[-–—:：﹕à]\s*\d{1,3}\b/;
 
   const keywords = [
-    "victoire", "défaite", "résultat", "score", "bat", "élimine", "écrase",
+    "victoire", "défaite", "champion", "gagne", "résultat", "score", "bat", "élimine", "écrase",
     "domination", "domine", "finale", "passe en", "forfait", "éjecte", "élimination",
     "aux tirs au but", "aux penalty", "qualifie", "qualification", "l’emporte"
   ];
@@ -46,6 +46,7 @@ function maskSpoilerTitles() {
         el.removeEventListener("click", reveal);
       });
 
+
       // 🔎 Chercher et masquer la vignette associée
       const container = el.closest("ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer");
       if (container) {
@@ -74,7 +75,6 @@ function restoreThumbnail(el) {
     }
   }
 }
-
 
 function hideShorts() {
   const sections = document.querySelectorAll('ytd-rich-section-renderer');
