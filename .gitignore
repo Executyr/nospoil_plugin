@@ -1,0 +1,26 @@
+# Ignorer le dossier archive
+archive/
+
+# Système
+.DS_Store
+Thumbs.db
+
+# Logs & backups
+*.log
+*.bak
+*.tmp
+*.swp
+
+# Node.js / JS
+node_modules/
+npm-debug.log
+dist/
+.env
+
+# Python (éventuellement)
+__pycache__/
+*.py[cod]
+
+# Extensions Chrome
+*.crx
+*.pem

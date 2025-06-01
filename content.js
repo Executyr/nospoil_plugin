@@ -1,3 +1,6 @@
+const SPOILER_IMAGE_URL = "https://executyr.github.io/nospoil_plugin/assets/nospoil_thumbnail.png";
+
+// Détection de spoilers dans un titre
 function isSpoiler(titre) {
   const cleaned = titre
     .normalize("NFKC")
@@ -6,31 +9,25 @@ function isSpoiler(titre) {
     .toLowerCase();
 
   const scoreRegex = /\b\d{1,3}\s*[-–—:：﹕à]\s*\d{1,3}\b/;
-
   const keywords = [
-    "victoire", "défaite", "champion", "gagne", "résultat", "score", "bat", "élimine", "écrase",
+    "victoire", "défaite", "champion", "gagne", "résultat","musèle", "score", "bat", "élimine", "écrase",
     "domination", "domine", "finale", "passe en", "forfait", "éjecte", "élimination",
     "aux tirs au but", "aux penalty", "qualifie", "qualification", "l’emporte"
   ];
-  const keywordsRegex = new RegExp(`\\b(${keywords.join("|")})\\b`, "i");
-
   const falsePositives = [
     "résumé complet", "mvp", "match de folie", "but refusé",
     "top 10", "match france - allemagne"
   ];
-  const falsePositiveRegex = new RegExp(falsePositives.join("|"), "i");
 
-  const isScore = scoreRegex.test(cleaned);
-  const hasKeyword = keywordsRegex.test(cleaned);
-  const isFalsePositive = falsePositiveRegex.test(cleaned);
+  const hasScore = scoreRegex.test(cleaned);
+  const hasKeyword = new RegExp(`\\b(${keywords.join("|")})\\b`, "i").test(cleaned);
+  const isFalsePositive = new RegExp(falsePositives.join("|"), "i").test(cleaned);
 
-  return (isScore || hasKeyword) && !isFalsePositive;
+  return (hasScore || hasKeyword) && !isFalsePositive;
 }
 
 function maskSpoilerTitles() {
-  const elements = document.querySelectorAll('h3, h4, span');
-
-  elements.forEach(el => {
+  document.querySelectorAll("h3, h4, span").forEach(el => {
     const original = el.textContent;
     if (!original || el.dataset.spoilerChecked) return;
 
@@ -46,16 +43,14 @@ function maskSpoilerTitles() {
         el.removeEventListener("click", reveal);
       });
 
-
-      // 🔎 Chercher et masquer la vignette associée
       const container = el.closest("ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer");
       if (container) {
         const img = container.querySelector("img");
         if (img) {
           img.dataset.originalSrc = img.src;
-          img.src = "https://via.placeholder.com/320x180.png?text=🚫+Spoiler";
-          img.style.objectFit = "contain";
-          img.style.backgroundColor = "#000";
+          img.src = SPOILER_IMAGE_URL;
+          img.style.objectFit = "cover";
+          img.style.backgroundColor = "#111";
         }
       }
     } else {
@@ -66,35 +61,36 @@ function maskSpoilerTitles() {
 
 function restoreThumbnail(el) {
   const container = el.closest("ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer");
-  if (container) {
-    const img = container.querySelector("img");
-    if (img && img.dataset.originalSrc) {
-      img.src = img.dataset.originalSrc;
-      img.style.objectFit = "";
-      img.style.backgroundColor = "";
-    }
+  const img = container?.querySelector("img");
+  if (img && img.dataset.originalSrc) {
+    img.src = img.dataset.originalSrc;
+    img.style.objectFit = "";
+    img.style.backgroundColor = "";
   }
 }
 
 function hideShorts() {
-  const sections = document.querySelectorAll('ytd-rich-section-renderer');
-  sections.forEach(section => {
+  document.querySelectorAll("ytd-rich-section-renderer").forEach(section => {
     if (section.innerText.toLowerCase().includes("shorts")) {
-      section.style.display = 'none';
+      section.style.display = "none";
     }
   });
 }
 
-// ▶️ Exécution initiale
-maskSpoilerTitles();
-hideShorts();
+// Exécution principale si activé
+chrome.storage.sync.get("enabled", ({ enabled }) => {
+  if (!enabled) return;
 
-// 🔁 Observer les ajouts dynamiques de YouTube
-const observer = new MutationObserver(() => {
   maskSpoilerTitles();
   hideShorts();
-});
-observer.observe(document.body, {
-  childList: true,
-  subtree: true
+
+  const observer = new MutationObserver(() => {
+    maskSpoilerTitles();
+    hideShorts();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
 });

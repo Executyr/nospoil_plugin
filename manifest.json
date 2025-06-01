@@ -1,20 +1,26 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Prompt Modifier",
+  "name": "nospoil_plugin",
   "version": "1.1",
-  "description": "Personnalise YouTube à la volée via prompt.",
-  "permissions": ["scripting", "activeTab"],
+  "description": "Masque les spoilers sportifs sur YouTube (titres et miniatures)",
+  "permissions": ["scripting", "storage"],
+  "host_permissions": ["*://www.youtube.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
-    "default_popup": "popup.html",
+    "default_title": "nospoil_plugin",
     "default_icon": {
-      "128": "icons/icon128.png"
+      "16": "assets/nospoil_icon.png",
+      "32": "assets/nospoil_icon.png",
+      "48": "assets/nospoil_icon.png",
+      "128": "assets/nospoil_icon.png"
     }
   },
-  "content_scripts": [
-    {
-      "matches": ["*://www.youtube.com/*"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    }
-  ]
+  "icons": {
+    "16": "assets/nospoil_icon.png",
+    "32": "assets/nospoil_icon.png",
+    "48": "assets/nospoil_icon.png",
+    "128": "assets/nospoil_icon.png"
+  }
 }
